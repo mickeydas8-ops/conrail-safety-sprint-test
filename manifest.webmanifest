@@ -1,0 +1,9 @@
+{
+  "name": "Conrail Safety Sprint Test App",
+  "short_name": "Safety Sprint",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0054a6",
+  "theme_color": "#0054a6",
+  "icons": []
+}
