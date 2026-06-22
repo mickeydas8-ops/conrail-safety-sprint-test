@@ -1,15 +1,13 @@
-# Conrail Safety Sprint v5
+# Green Signal v6
 
-Upload index.html, manifest.webmanifest, and icons/ to the top level of your GitHub repo.
+Rebranded from Safety Sprint to Green Signal.
 
-New in this version:
-- Admin reward add/remove/hide
-- Admin rule add/remove
-- Admin question add/remove
-- Admin Rule of the Week selector
-- Seeded monthly/yearly leaderboards and winners circle demo data
-- Sound effects for correct/wrong answers using Web Audio
-- Boss Battle locked until 25 correct answers in a row
-- Boss Battle pays double points
+Upload these files to the top level of the GitHub Pages repo:
 
-Open with ?reset=1 once after upload to load the new demo data.
+- index.html
+- manifest.webmanifest
+- icons/
+
+Then open the site with `?reset=1` once to clear old prototype state.
+
+Demo login: demo.manager@conrail.com
