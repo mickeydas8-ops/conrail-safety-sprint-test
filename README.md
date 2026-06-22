@@ -1,23 +1,15 @@
-# Conrail Safety Sprint v4
+# Conrail Safety Sprint v5
 
-Upload these files to the top level of your GitHub Pages repo:
+Upload index.html, manifest.webmanifest, and icons/ to the top level of your GitHub repo.
 
-- index.html
-- manifest.webmanifest
-- icons/
+New in this version:
+- Admin reward add/remove/hide
+- Admin rule add/remove
+- Admin question add/remove
+- Admin Rule of the Week selector
+- Seeded monthly/yearly leaderboards and winners circle demo data
+- Sound effects for correct/wrong answers using Web Audio
+- Boss Battle locked until 25 correct answers in a row
+- Boss Battle pays double points
 
-Then open your site with ?reset=1 once to clear older demo state.
-
-New in v4:
-- Mobile/Desktop/Auto device view setting
-- Top-left dropdown rule search
-- Admin add/remove rules
-- Admin add/remove questions
-- Admin selects focused rule section for random questions
-- Rule of the Week on home page
-- Admin can change Rule of the Week
-- Month-end winner alert and archive/reset control
-- Monthly leaderboard reset with winner history
-- Yearly leaderboard tab
-- Rewards tab
-- Admin add/hide/remove rewards
+Open with ?reset=1 once after upload to load the new demo data.
