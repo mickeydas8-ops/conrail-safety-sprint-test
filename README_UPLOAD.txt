@@ -1,0 +1,1 @@
+Upload index.html, manifest.webmanifest, and the icons folder to the TOP LEVEL of your GitHub repo. Then open your GitHub Pages URL with ?reset=1 once: https://mickeydas8-ops.github.io/conrail-safety-sprint-test/?reset=1

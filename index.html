@@ -50,7 +50,27 @@ const seedTeams=[
 ];
 let state=load();
 function defaults(){return {screen:'login',email:'',profile:null,unlocked:false,points:0,tickets:0,streak:0,badges:['Green Signal'],missed:[],sessions:0,teamsEnabled:true,team:null,teams:seedTeams,questions:seedQuestions,rules:seedRules,leaderboard:[{nick:'TrackBoss92',team:'North Jersey Rail Hawks',points:4520},{nick:'YardLegend',team:'South Yard Signal Sharks',points:4300},{nick:'RuleRocket',team:'Detroit Blue Engines',points:3980},{nick:'SignalSam',team:'North Jersey Rail Hawks',points:3400}],activeGame:null,adminMode:false,search:''}}
-function load(){try{return {...defaults(),...JSON.parse(localStorage.getItem(LS)||'{}')}}catch(e){return defaults()}}
+function load(){
+  const base=defaults();
+  try{
+    if(new URLSearchParams(location.search).has('reset')) localStorage.removeItem(LS);
+    const saved=JSON.parse(localStorage.getItem(LS)||'{}');
+    const merged={...base,...saved};
+    if(!Array.isArray(merged.questions) || merged.questions.length===0) merged.questions=seedQuestions;
+    if(!Array.isArray(merged.rules) || merged.rules.length===0) merged.rules=seedRules;
+    if(!Array.isArray(merged.teams) || merged.teams.length===0) merged.teams=seedTeams;
+    if(!Array.isArray(merged.leaderboard)) merged.leaderboard=base.leaderboard;
+    if(!Array.isArray(merged.missed)) merged.missed=[];
+    if(!Array.isArray(merged.badges)) merged.badges=['Green Signal'];
+    if(!merged.profile && merged.screen!=='setup') merged.screen='login';
+    if(merged.screen==='game' && (!merged.activeGame || !Array.isArray(merged.activeGame.qs) || merged.activeGame.qs.length===0)) merged.screen='home';
+    if(merged.screen==='results' && (!merged.activeGame || !Array.isArray(merged.activeGame.qs) || merged.activeGame.qs.length===0)) merged.screen='home';
+    return merged;
+  }catch(e){
+    localStorage.removeItem(LS);
+    return base;
+  }
+}
 function save(){localStorage.setItem(LS,JSON.stringify(state))}
 function nav(screen){state.screen=screen; save(); render()}
 function isAdmin(){return state.profile && ADMIN_EMAILS.includes((state.profile.email||'').toLowerCase())}
@@ -66,7 +86,7 @@ function home(){const teamName=state.teams.find(t=>t.id===state.team)?.name||'No
 function startGame(mode){const qs=[...state.questions].sort(()=>Math.random()-0.5).slice(0,mode==='boss'?5:5); state.activeGame={mode,idx:0,score:0,correct:0,answers:[],qs,started:Date.now(),answered:false,time:12}; state.screen='game'; save(); render(); startTimer()}
 window.startGame=startGame;
 let timerInt=null; function startTimer(){clearInterval(timerInt); let left=12; const fill=()=>{const el=$('#timer'); if(el)el.style.width=(left/12*100)+'%'}; fill(); timerInt=setInterval(()=>{if(!state.activeGame||state.activeGame.answered){clearInterval(timerInt);return} left-=.1; if(left<=0){clearInterval(timerInt); choose(-1,12000)} fill()},100)}
-function game(){const g=state.activeGame, q=g.qs[g.idx];return `${top(g.mode==='boss'?'Friday Boss Battle':'Daily Safety Sprint',`Question ${g.idx+1} of ${g.qs.length}`)}<div class="screen"><div class="card question-card"><div class="timer-wrap"><div id="timer" class="timer"></div></div><div class="question">${q.question}</div><div class="choices">${q.choices.map((c,i)=>`<button class="choice" id="choice${i}" onclick="choose(${i},${Math.floor(Math.random()*5000)+1200})"><b>${String.fromCharCode(65+i)}.</b> ${c}</button>`).join('')}</div><div id="feedback"></div></div></div>`}
+function game(){const g=state.activeGame; if(!g||!Array.isArray(g.qs)||!g.qs.length){state.screen='home'; save(); return home()} const q=g.qs[g.idx]||g.qs[0];return `${top(g.mode==='boss'?'Friday Boss Battle':'Daily Safety Sprint',`Question ${g.idx+1} of ${g.qs.length}`)}<div class="screen"><div class="card question-card"><div class="timer-wrap"><div id="timer" class="timer"></div></div><div class="question">${q.question}</div><div class="choices">${q.choices.map((c,i)=>`<button class="choice" id="choice${i}" onclick="choose(${i},${Math.floor(Math.random()*5000)+1200})"><b>${String.fromCharCode(65+i)}.</b> ${c}</button>`).join('')}</div><div id="feedback"></div></div></div>`}
 window.choose=(i,ms)=>{const g=state.activeGame;if(!g||g.answered)return;g.answered=true;clearInterval(timerInt);const q=g.qs[g.idx],ok=i===q.correct; if(i>=0)$('#choice'+i)?.classList.add(ok?'correct':'wrong'); $('#choice'+q.correct)?.classList.add('correct'); const pts=ok?100+(ms<5000?50:0):0; g.score+=pts; if(ok)g.correct++; else state.missed.unshift({qid:q.id,ruleId:q.ruleId,when:new Date().toISOString()}); g.answers.push({qid:q.id,selected:i,correct:ok,ms,pts}); $('#feedback').innerHTML=`<div class="feedback ${ok?'good':'bad'}"><b>${ok?'✅ Green Signal!':'🚧 Red Signal!'}</b><br>${ok?'Nice move. ':`Correct: ${q.choices[q.correct]}. `}${q.explanation}<br><span class="rule-source" onclick="openRule('${q.ruleId}')">Read rule: ${q.source}</span><br><br><button class="button" onclick="nextQ()">${g.idx===g.qs.length-1?'See Results':'Next Question'}</button></div>`;save()}
 window.nextQ=()=>{const g=state.activeGame;if(g.idx<g.qs.length-1){g.idx++;g.answered=false;save();render();startTimer()}else{finishGame()}}
 function finishGame(){const g=state.activeGame;state.points+=g.score+(g.correct===g.qs.length?500:0); state.tickets+=1+(g.correct===g.qs.length?1:0)+(g.mode==='boss'?3:0); state.streak=Math.max(1,state.streak+1); state.sessions++; if(g.correct===g.qs.length&&!state.badges.includes('Green Signal'))state.badges.push('Green Signal'); if(state.sessions>=3&&!state.badges.includes('Streak Engine'))state.badges.push('Streak Engine'); if(state.team){const t=state.teams.find(t=>t.id===state.team); if(t)t.points+=g.score} state.leaderboard.push({nick:state.profile.nick,team:state.teams.find(t=>t.id===state.team)?.name||'Solo',points:g.score+Math.floor(Math.random()*200)}); state.screen='results'; save(); render()}
@@ -87,7 +107,19 @@ function admin(){if(!isAdmin())return `${top('Admin Locked','Manager access only
 window.importCsv=()=>{const f=$('#csv').files[0]; if(!f)return toast('Choose a CSV file first.'); const reader=new FileReader(); reader.onload=()=>{const rows=reader.result.split(/\r?\n/).filter(Boolean); const heads=rows.shift().split(',').map(h=>h.trim().replace(/^"|"$/g,'')); let count=0; for(const row of rows){const vals=parseCSV(row); const obj={}; heads.forEach((h,i)=>obj[h]=vals[i]||''); if(obj.question&&obj.choice_a){const rid='r_imp_'+Date.now()+count; const q={id:'q_imp_'+Date.now()+count,question:obj.question,choices:[obj.choice_a,obj.choice_b,obj.choice_c,obj.choice_d],correct:'ABCD'.indexOf((obj.correct_answer||'A').trim().toUpperCase()),explanation:obj.explanation||'',category:obj.category||'Imported',difficulty:obj.difficulty||'Easy',source:obj.source||'Imported CSV',ruleId:rid}; state.questions.push(q); state.rules.push({id:rid,title:obj.source||obj.category||'Imported Rule',category:q.category,text:q.explanation||q.question,source:q.source,related:[q.id]}); count++}} save(); render(); toast(`Imported ${count} questions.`)}; reader.readAsText(f)}
 function parseCSV(line){const out=[];let cur='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){q=!q}else if(ch===','&&!q){out.push(cur);cur=''}else cur+=ch}out.push(cur);return out.map(v=>v.trim())}
 window.downloadReport=()=>{const csv='nickname,email,points,tickets,streak,team\n'+[state.profile.nick,state.profile.email,state.points,state.tickets,state.streak,state.teams.find(t=>t.id===state.team)?.name||'Solo'].join(','); const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='safety-sprint-demo-report.csv';a.click()}
-function render(){let html=''; if(!state.profile){html=state.screen==='setup'?setup():login()}else{html=({home,game,results,teams,rules,board,profile,admin}[state.screen]||home)()} app.innerHTML=html}
+function render(){
+  try{
+    let html='';
+    if(!state.profile){html=state.screen==='setup'?setup():login()}
+    else{html=({home,game,results,teams,rules,board,profile,admin}[state.screen]||home)()}
+    app.innerHTML=html;
+  }catch(e){
+    console.error('Safety Sprint render error', e);
+    localStorage.removeItem(LS);
+    state=defaults();
+    app.innerHTML=`${top('Conrail Safety Sprint','Recovered from a bad saved demo state')}<div class="screen"><div class="card hero"><h2>Green signal restored</h2><p>The app found old broken demo data and cleared it.</p><button class="big-button" onclick="location.href=location.pathname+'?reset=1'">Restart App</button></div></div>`;
+  }
+}
 render();
 
   </script>
