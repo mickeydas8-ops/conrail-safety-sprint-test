@@ -1,18 +1,11 @@
-SafeTrack v9.2 flat icon fix
+# SafeTrack v10 Engagement Update
 
-This package fixes the 404 icon problem by placing the yellow icon PNG files at the repo root instead of inside /icons.
-
-Upload these files directly to the TOP LEVEL of your GitHub repo:
+Upload these files to the top level of the GitHub Pages repo:
 
 - index.html
 - manifest.webmanifest
-- safetrack-yellow-180-v92.png
-- safetrack-yellow-192-v92.png
-- safetrack-yellow-512-v92.png
+- safetrack-yellow-180-v100.png
+- safetrack-yellow-192-v100.png
+- safetrack-yellow-512-v100.png
 
-Do not upload an outer folder.
-After commit, open:
-https://mickeydas8-ops.github.io/conrail-safety-sprint-test/?reset=1&v=92
-
-Then test the icon directly:
-https://mickeydas8-ops.github.io/conrail-safety-sprint-test/safetrack-yellow-512-v92.png
+Open with ?reset=1&v=100 after upload.
