@@ -1,20 +1,18 @@
-SafeTrack v9 Yellow Icon Update
+SafeTrack v9.2 flat icon fix
 
-This package preserves the working admin/game build and updates the app icon to the yellow SafeTrack concept #7 / #1 color variation.
+This package fixes the 404 icon problem by placing the yellow icon PNG files at the repo root instead of inside /icons.
 
-Upload these to the TOP LEVEL of your GitHub repo:
+Upload these files directly to the TOP LEVEL of your GitHub repo:
+
 - index.html
 - manifest.webmanifest
-- icons/
+- safetrack-yellow-180-v92.png
+- safetrack-yellow-192-v92.png
+- safetrack-yellow-512-v92.png
 
-Then open:
-https://mickeydas8-ops.github.io/conrail-safety-sprint-test/?reset=1&v=90
+Do not upload an outer folder.
+After commit, open:
+https://mickeydas8-ops.github.io/conrail-safety-sprint-test/?reset=1&v=92
 
-To update the Edge desktop icon:
-1. Open edge://apps
-2. Remove the old SafeTrack app
-3. Close all Edge windows
-4. Reopen the GitHub Pages link above
-5. Edge menu > Apps > Install this site as an app
-
-Edge desktop app icons are cached. The app must be removed and reinstalled for the desktop icon to change.
+Then test the icon directly:
+https://mickeydas8-ops.github.io/conrail-safety-sprint-test/safetrack-yellow-512-v92.png
